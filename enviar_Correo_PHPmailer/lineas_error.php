@@ -9,7 +9,7 @@
 try{
     //llamado de funciones:
       ultimo_archivo("//loki\PRD\SAPaY2\TrasladosSAP\Log");
-     // ultimo_archivo("C:\cap");
+     //ultimo_archivo("C:\cap");
        }catch(exception $ex){
   
       echo"excepcion ocurrida:".$ex->getMessage()."</br>"; 
@@ -37,50 +37,77 @@ lineasError($latest_filename,$path) ;
 }
  
 function lineasError($file,$path){
-       
-    $i=0;
+
+  $msj="";
+  $mensaje="";
+  $message="";
 
         $cod = detectFileEncoding($path."/".$file);
          //  echo $cod;
                   
          $archivo=fopen($path."/".$file,"r")or die ("error al abrir archivo :".$file);
      
-          
-          
         
-    while (!feof($archivo)){
-       //toma las lineas
-        $linea = fgets($archivo);
-        //función codifi... 
-        $result = codifi($cod,$linea);    
-            
-        $saltoLinea=nl2br($result);
-             
-        $cadena_de_texto = $saltoLinea;
-        
-       //palabra a buscar:
-  
-        $cadena_buscada = "Error";
-      
-        $posicion_coincidencia = strrpos($cadena_de_texto, $cadena_buscada,$offset = 0);
-      
+         while (!feof($archivo)){
+          //toma las lineas
+           $linea = fgets($archivo);
+           //función codifi... 
+           $result = codifi($cod,$linea);    
                
-        if ($posicion_coincidencia === false){
-        //echo "</br>NO se ha encontrado la palabra deseada!!!!";
-         
-         }else if ($posicion_coincidencia === 0){
+           $saltoLinea=nl2br($result);
+                
+           $cadena_de_texto = $saltoLinea;
+           
+           $cadena_buscada = "Error";
           
-          // echo " linea de 'error' encontrada!!";           
-      
-         //echo "</br>$cadena_de_texto";
-          
-         email($cadena_de_texto,$file);
-         }
-    }   
-       fclose($archivo);
+           $posicion_coincidencia = strrpos($cadena_de_texto, $cadena_buscada,$offset = 0);
+               
+           if ($posicion_coincidencia === false){
+   
+         // echo "</br>NO se ha encontrado Error!!!!";
+           $mensaje = Error($cadena_de_texto);
+           $message = $message.$mensaje;
+ 
+            }else if ($posicion_coincidencia === 0){
+             
+            //  echo " linea de 'Error' encontrada!!";           
+           $msj= $msj.$cadena_de_texto;
+                       
+                }
+             }
     
+           $message = $message.$mensaje.$msj;
+           //echo $message;
+           if ($message != null){
+            email($message,$file);   
+          }
+    fclose($archivo); 
+        
+   }
+   
+   function Error($cadena_de_texto){
+   $message = "";
+    //palabra a buscar:
+     $palabra_buscada ="error";
+   
+     $posicion_encontrada= strrpos($cadena_de_texto, $palabra_buscada,$offset = 0);
+    
+   
+     if ($posicion_encontrada === false){
+      // echo "</br>NO se ha encontrado error!!!!";
+    
+          }else if ($posicion_encontrada === 0){
      
-}
+          //echo " linea de 'error' encontrada!!";           
+   
+     $message = $message.$cadena_de_texto;
+        
+     }   
+     //echo $message;
+    return $message;
+   
+   }
+   
 function detectFileEncoding($filePath){ 
 
     $fopen=fopen($filePath,'r');
